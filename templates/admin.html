@@ -1,0 +1,202 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <header>
+            <h1>License Management and Validation Dashboard</h1>
+            <nav>
+                <button id="logout-button">Logout</button>
+            </nav>
+        </header>
+
+        <main class="grid-container">
+            <section class="action-section">
+                <h2>Activate License</h2>
+                <form id="activate-form">
+                    <input type="text" id="activate-key" placeholder="Enter License Key" required>
+                    <button type="submit">Activate</button>
+                </form>
+                <div id="activate-response" class="response-message"></div>
+            </section>
+
+            <section class="action-section">
+                <h2>Revoke License</h2>
+                <form id="revoke-form">
+                    <input type="text" id="revoke-key" placeholder="Enter License Key" required>
+                    <button type="submit">Revoke</button>
+                </form>
+                <div id="revoke-response" class="response-message"></div>
+            </section>
+
+            <section class="action-section">
+                <h2>Clear All Licenses</h2>
+                <form id="clear-licenses-form" method="POST">
+                    <input type="password" id="clear-password" placeholder="Enter Admin Password" required>
+                    <button type="submit">Clear Licenses</button>
+                </form>
+                <div id="clear-response" class="response-message"></div>
+            </section>
+        </main>
+
+        <section class="license-list-section">
+            <h2>Existing Licenses</h2>
+            <ul id="license-list"></ul>
+        </section>
+    </div>
+
+    <script>
+        document.getElementById("activate-form").onsubmit = async function(e) {
+    e.preventDefault();
+    const licenseKey = document.getElementById("activate-key").value;
+
+    // Attempt to activate the license
+    const response = await fetch("/activate", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ license_key: licenseKey })
+    });
+
+    const result = await response.json();
+    document.getElementById("activate-response").innerText = result.message;
+
+    // Show notification for success or error
+    if (response.ok) {
+        showNotification("License activated successfully!", "info");
+    } else {
+        showNotification(result.message, "error");
+    }
+
+    // Store the license in local storage if successful
+    if(response.ok) {
+        let licenses = JSON.parse(localStorage.getItem("licenses")) || [];
+        licenses.push({ license_key: licenseKey, status: "active" });
+        localStorage.setItem("licenses", JSON.stringify(licenses));
+        fetchLicenses(); // Refresh the displayed licenses
+    }
+};
+
+
+        document.getElementById("revoke-form").onsubmit = async function(e) {
+            e.preventDefault();
+            const licenseKey = document.getElementById("revoke-key").value;
+            const response = await fetch("/revoke", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ license_key: licenseKey })
+            });
+            const result = await response.json();
+            document.getElementById("revoke-response").innerText = result.message;
+        };
+
+        document.getElementById("clear-licenses-form").onsubmit = async function(e) {
+            e.preventDefault();
+            const password = document.getElementById("clear-password").value;
+            const response = await fetch("/clear_licenses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({ password })
+            });
+            const result = await response.json();
+            document.getElementById("clear-response").innerText = result.message;
+        };
+
+        async function fetchLicenses() {
+    // Try to fetch licenses from the server
+    const response = await fetch("/licenses");
+    const licenses = await response.json();
+
+    // If the request fails (e.g., offline), try to load from local storage
+    if (!response.ok) {
+        const storedLicenses = JSON.parse(localStorage.getItem("licenses")) || [];
+        displayLicenses(storedLicenses);
+        return;
+    }
+
+    // If the request is successful, display the licenses
+    displayLicenses(licenses);
+}
+
+function displayLicenses(licenses) {
+    const list = document.getElementById("license-list");
+    list.innerHTML = '';
+    licenses.forEach(license => {
+        const li = document.createElement("li");
+        li.innerText = `${license.license_key} - ${license.status}`;
+        list.appendChild(li);
+    });
+}
+window.addEventListener("online", async () => {
+    const licenses = JSON.parse(localStorage.getItem("licenses")) || [];
+    for (const license of licenses) {
+        // You can implement logic here to sync each license with the server
+        await fetch("/activate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ license_key: license.license_key })
+        });
+    }
+    localStorage.removeItem("licenses"); // Clear local storage after syncing
+    fetchLicenses(); // Refresh the displayed licenses
+});
+function showNotification(message, type = "info") {
+    const notification = document.createElement("div");
+    notification.className = `notification ${type}`;
+    notification.innerText = message;
+
+    document.body.appendChild(notification);
+
+    // Automatically remove the notification after a few seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000); // 3 seconds
+}
+
+
+        document.addEventListener("DOMContentLoaded", fetchLicenses);
+
+        document.getElementById("logout-button").onclick = function() {
+            window.location.href = "{{ url_for('logout') }}"; // Redirect to logout
+        };
+        // Notify user when they go offline
+window.addEventListener("offline", () => {
+    showNotification("You are offline. Any actions will be queued until you're back online.", "error");
+});
+
+// Notify user when they come back online
+window.addEventListener("online", () => {
+    showNotification("You are back online! Any queued actions will now be processed.", "info");
+
+    // Sync any queued actions (if applicable)
+    const licenses = JSON.parse(localStorage.getItem("licenses")) || [];
+    for (const license of licenses) {
+        // Implement logic to sync each license with the server
+        fetch("/activate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ license_key: license.license_key })
+        });
+    }
+    localStorage.removeItem("licenses"); // Clear local storage after syncing
+    fetchLicenses(); // Refresh the displayed licenses
+});
+
+    </script>
+</body>
+</html>
