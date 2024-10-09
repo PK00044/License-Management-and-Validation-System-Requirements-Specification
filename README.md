@@ -165,7 +165,4 @@ To run the unit tests and integration tests, use the following commands:
 ```bash
 # Run unit tests
 pytest tests/test_app.py
-
-# Run integration tests
-pytest tests/test_integration.py
 ```
