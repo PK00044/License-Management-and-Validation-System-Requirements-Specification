@@ -1,0 +1,286 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f7fa; /* Light background */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+section:hover {
+    transform: scale(1.01); /* Scale up on hover */
+}
+
+input[type="text"], input[type="password"] {
+    padding: 10px;
+    border: 2px solid #00796b; /* Border color */
+    border-radius: 4px;
+    width: calc(100% - 22px); /* Full width with padding adjustment */
+    box-sizing: border-box; /* Include padding in width */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #004d40; /* Darker shade on focus */
+    outline: none; /* Remove default outline */
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px 0px;
+    background-color: #00796b; /* Button color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s; /* Add transition */
+}
+
+button:hover {
+    background-color: #004d40; /* Darker shade on hover */
+    transform: scale(1.05); /* Slightly increase size */
+}
+
+.response-message {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #d32f2f; /* Error color */
+}
+
+#license-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#license-list li {
+    background-color: #ffffff; /* White background for license list items */
+    border: 1px solid #00796b; /* Border color */
+    border-radius: 4px;
+    margin: 5px 0;
+    padding: 10px;
+    transition: transform 0.2s; /* Animation for hover */
+}
+
+#license-list li:hover {
+    transform: scale(1.02); /* Scale up on hover */
+}
+/* Login and Signup Page Styles */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f7fa; /* Light background for all pages */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+}
+
+.signup-container,
+.login-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 300px; /* Fixed width for the form boxes */
+    text-align: center; /* Center text in the containers */
+}
+
+h1 {
+    color: #00796b; /* Primary color for headings */
+    margin: 0 0 20px 0; /* Space below heading */
+}
+
+.input-group {
+    margin-bottom: 20px; /* Space between input fields */
+}
+
+input[type="text"], input[type="password"] {
+    padding: 12px; /* Padding inside the input fields */
+    border: 2px solid #00796b; /* Border color for input fields */
+    border-radius: 4px; /* Rounded corners */
+    width: calc(100% - 24px); /* Full width minus padding */
+    box-sizing: border-box; /* Include padding in width */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #004d40; /* Darker shade on focus */
+    outline: none; /* Remove default outline */
+}
+
+button {
+    padding: 12px 20px; /* Padding inside the buttons */
+    background-color: #00796b; /* Button color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Font size for button text */
+    transition: background-color 0.3s ease, transform 0.2s; /* Add transition */
+}
+
+button:hover {
+    background-color: #004d40; /* Darker shade on hover */
+    transform: scale(1.05); /* Slightly increase size */
+}
+
+.signup-link, .login-link {
+    margin-top: 15px; /* Space above signup/login link */
+    font-size: 14px; /* Smaller font size */
+}
+
+.signup-link a, .login-link a {
+    color: #00796b; /* Link color */
+    text-decoration: none; /* Remove underline */
+}
+
+.signup-link a:hover, .login-link a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+.response-message {
+    margin-top: 15px; /* Space above response message */
+    font-weight: bold; /* Make response message bold */
+    color: #d32f2f; /* Error color */
+}
+/* static/style.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f7fa; /* Light background */
+    margin: 0;
+    padding: 0;
+}
+
+.admin-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 100%; /* Full width */
+    margin: auto; /* Center the dashboard */
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #00796b; /* Primary color for headings */
+    margin: 0 0 10px 0;
+}
+
+nav {
+    margin-top: 10px;
+}
+
+nav button {
+    background-color: #00796b; /* Button color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+nav button:hover {
+    background-color: #004d40; /* Darker shade on hover */
+    transform: scale(1.05); /* Slightly increase size */
+}
+
+main {
+    display: flex; /* Use flexbox for layout */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    gap: 20px; /* Space between sections */
+}
+
+.action-section {
+    border: 1px solid #00796b; /* Border color */
+    border-radius: 5px;
+    padding: 15px;
+    background-color: #f1f8e9; /* Light green background for sections */
+    transition: transform 0.2s; /* Animation for hover */
+    flex: 1 1 300px; /* Allow items to grow/shrink and have a minimum width */
+}
+
+.action-section:hover {
+    transform: scale(1.02); /* Scale up on hover */
+}
+
+input[type="text"], input[type="password"] {
+    padding: 12px; /* Padding inside the input fields */
+    border: 2px solid #00796b; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    width: calc(100% - 24px); /* Full width minus padding */
+    box-sizing: border-box; /* Include padding in width */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+    border-color: #004d40; /* Darker shade on focus */
+    outline: none; /* Remove default outline */
+}
+
+button {
+    padding: 12px 20px; /* Padding inside the buttons */
+    margin: 5px;
+    background-color: #00796b; /* Button color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Font size for button text */
+    transition: background-color 0.3s ease, transform 0.2s; /* Add transition */
+}
+
+button:hover {
+    background-color: #004d40; /* Darker shade on hover */
+    transform: scale(1.05); /* Slightly increase size */
+}
+
+.response-message {
+    margin-top: 10px; /* Space above response messages */
+    font-weight: bold; /* Make response message bold */
+    color: #d32f2f; /* Error color */
+}
+
+#license-list {
+    list-style-type: none; /* No bullets */
+    padding: 0; /* No padding */
+}
+
+#license-list li {
+    background-color: #ffffff; /* White background for license list items */
+    border: 1px solid #00796b; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    margin: 5px 0; /* Space between items */
+    padding: 10px; /* Padding inside list items */
+    transition: transform 0.2s; /* Animation for hover */
+}
+
+#license-list li:hover {
+    transform: scale(1.02); /* Scale up on hover */
+}
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+    z-index: 1000;
+    transition: opacity 0.5s;
+}
+
+.notification.info {
+    background-color: #00796b; /* Info color */
+}
+
+.notification.error {
+    background-color: #d32f2f; /* Error color */
+}
