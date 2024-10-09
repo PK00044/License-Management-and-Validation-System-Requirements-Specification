@@ -5,45 +5,44 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initialize the Flask app and database
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a strong secret key!
+app.secret_key = 'License-Management-and-Validation-System'  
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///licenses.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Initialize Flask-Login
+
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'  # Redirect unauthorized users to login page
+login_manager.login_view = 'login'  
 
 
-# Define the User model
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(150), nullable=False)
 
-    # Set hashed password
+  
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    # Check hashed password
+   
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
 
-# Define the License model
+
 class License(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     license_key = db.Column(db.String(80), unique=True, nullable=False)
     status = db.Column(db.String(20), nullable=False)
 
 
-# Create the database (only once)
 with app.app_context():
     db.create_all()
 
 
-# Load user function for Flask-Login
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -59,7 +58,7 @@ def internal_error(error):
     return jsonify({"message": "An internal error occurred."}), 500
 
 
-# Routes for login
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -81,26 +80,25 @@ def login():
     return render_template("login.html")
 
 
-# Signup Route
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
         username = request.form['username']
         password = request.form['password']
 
-        # Check if the user already exists
+       
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash("Username already exists. Please choose a different one.")
             return redirect(url_for("signup"))
 
-        # Create new user
+        
         new_user = User(username=username)
-        new_user.set_password(password)  # Hash the password
-        db.session.add(new_user)  # Add user to the database session
-        db.session.commit()  # Commit the session to save the user
+        new_user.set_password(password)  
+        db.session.add(new_user)  
+        db.session.commit()  
         flash("Signup successful! Please log in.")
-        return redirect(url_for("login"))  # Redirect to the login page
+        return redirect(url_for("login"))  
 
     return render_template("signup.html")
 
@@ -155,10 +153,10 @@ def activate_license():
 def clear_licenses():
     password = request.form.get("password")
 
-    # Replace 'your_admin_password' with the actual password you want to use for validation
+    
     if password == 'pratham':
-        License.query.delete()  # Delete all licenses
-        db.session.commit()  # Commit the changes
+        License.query.delete() 
+        db.session.commit()  
         return jsonify({"message": "All licenses cleared successfully."}), 200
     else:
         return jsonify({"message": "Invalid password."}), 403
