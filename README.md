@@ -1,12 +1,26 @@
-## License Management and Validation System Documentation
+# License Management and Validation System Documentation
 
-### 1. Introduction
+## 1. Introduction
 
-This application allows users to manage software licenses, providing functionalities for activation, revocation, and license clearing. The system is designed to be user-friendly and efficient, making it easy for administrators to handle licenses for their software products.
+The **License Management and Validation System** is a software solution that allows administrators and users to manage software licenses. This includes the ability to activate, revoke, and clear licenses. The system is designed to be multi-tenant, supporting multiple clients (tenants) with role-based access control, ensuring data isolation between different clients.
 
-### 2. Installation Instructions
+### Key Features:
+- Multi-tenancy support (multiple clients using the same system with isolated data).
+- Role-based access control (e.g., admin, user).
+- License management: activation, revocation, and clearing.
+- Offline functionality using local storage.
+- RESTful API support for tenants to integrate license management into their own systems.
 
-To set up the application locally, follow these steps:
+---
+
+## 2. Installation Instructions
+
+### Prerequisites:
+- Python 3.6 or higher
+- A local SQLite database (or another database supported by SQLAlchemy)
+- Flask and required libraries (detailed in `requirements.txt`)
+
+### Steps:
 
 1. **Clone the Repository**:
    ```bash
@@ -18,151 +32,239 @@ To set up the application locally, follow these steps:
    cd <project-directory>
    ```
 
-3. **Install Required Dependencies**:
-   Make sure you have Python installed (version 3.6 or higher). Then run:
+3. **Set Up Virtual Environment** (optional but recommended):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   venv\Scripts\activate  # Windows
+   ```
+
+4. **Install Required Dependencies**:
+   Install all dependencies using the provided `requirements.txt` file:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Run the Application**:
-   Start the Flask server:
+5. **Configure Environment Variables**:
+   Create a `.env` file in the root of the project directory for environment-specific configurations:
+   ```
+   FLASK_ENV=development
+   SECRET_KEY=your_secret_key
+   ```
+
+6. **Set Up the Database**:
+   Initialize and create the necessary tables for your database.
+   ```bash
+   python
+   >>> from license_server import db
+   >>> db.create_all()
+   ```
+
+7. **Run the Flask Application**:
+   Start the development server:
    ```bash
    python license_server.py
    ```
 
-5. **Access the Application**:
-   Open your web browser and navigate to:
+8. **Access the Application**:
+   Open your browser and navigate to:
    ```
    http://127.0.0.1:5000
    ```
 
-### 3. Usage Guide
+---
 
-#### User Registration
-1. Navigate to the **Signup** page.
-2. Enter a unique username and a secure password.
-3. Click on **Sign Up** to create your account.
+## 3. Project Structure
 
-#### User Login
-1. Navigate to the **Login** page.
-2. Enter your username and password.
-3. Click on **Login** to access the dashboard.
-
-#### License Management
-- **Activate License**:
-  1. Enter the license key in the provided field.
-  2. Click on **Activate** to activate the license.
-
-- **Revoke License**:
-  1. Enter the license key in the provided field.
-  2. Click on **Revoke** to revoke the license.
-
-- **Clear All Licenses**:
-  1. Enter your admin password in the provided field.
-  2. Click on **Clear Licenses** to remove all licenses from the system.
-
-### 4. Project Structure
-
-The directory structure of the project is as follows:
+The structure of your project looks like this:
 
 ```
 License Management/
-├── license_server.py  # Main Flask application file
-├── models.py          # Database models and schema
-├── templates/         # Contains HTML templates for rendering
-├── static/            # Contains static files like CSS and JavaScript
-├── tests/             # Contains unit and integration tests for the application
-└── requirements.txt    # Python dependencies
+├── license_server.py        # Main Flask application file
+├── models.py                # Database models and schema for users, licenses, tenants
+├── templates/               # HTML templates for front-end pages (login, signup, admin)
+│   ├── login.html
+│   ├── signup.html
+│   ├── admin.html
+├── static/                  # Static files like CSS and JavaScript
+│   ├── css/
+│   
+├── tests/                   # Unit and integration tests
+│   ├── test_app.py
+├── .env                     # Environment variables
+├── requirements.txt         # Python dependencies
+└── README.md                # Documentation
 ```
 
-### 5. Code Comments
+### Key Files:
+- `license_server.py`: The main Flask app that routes HTTP requests and manages user sessions.
+- `models.py`: Defines database models for **User**, **Tenant**, and **License**.
+- `templates/`: Contains HTML files for rendering the UI.
+- `static/`: Contains static assets like CSS.
+- `.env`: Contains environment-specific configurations (e.g., `SECRET_KEY`).
+- `requirements.txt`: Lists all the required Python libraries and dependencies.
 
-Ensure your code has appropriate comments explaining complex logic or important functionalities. Here are some examples of code comments you should include in your application:
+---
 
+## 4. Multi-Tenancy and Role-Based Access
+
+### Multi-Tenancy:
+
+Multi-tenancy ensures that different tenants (clients) can use the same system but only see and interact with their own data. This is achieved by associating each user and license with a **tenant_id**.
+
+### Role-Based Access Control (RBAC):
+
+RBAC ensures that different types of users (e.g., admin, user) have different levels of access. For example:
+- **Admin**: Can activate, revoke, and clear licenses.
+- **User**: Can only activate licenses.
+
+#### Example of Multi-Tenant User Model:
 ```python
-@app.route("/activate", methods=["POST"])
-def activate_license():
-    data = request.get_json()
-    license_key = data.get("license_key")
-
-    # Validate the license key to ensure it's not empty and only contains alphanumeric characters
-    if not license_key or not license_key.isalnum():
-        return jsonify({"message": "Invalid license key."}), 400  # Bad Request
-
-    # Check if the license already exists in the database
-    existing_license = License.query.filter_by(license_key=license_key).first()
-    if existing_license:
-        return jsonify({"message": "License already activated."}), 400  # Bad Request
-
-    # If license doesn't exist, create a new license entry
-    new_license = License(license_key=license_key, status="active")
-    db.session.add(new_license)
-    db.session.commit()
-
-    return jsonify({"message": "License activated successfully."}), 201  # Created
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password_hash = db.Column(db.String(150), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # Role: 'admin' or 'user'
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)  # Link user to a tenant
 ```
 
-### 6. API Documentation
+---
 
-Here’s a comprehensive list of all API endpoints with their methods, required parameters, and responses:
+## 5. API Documentation
 
-#### **User Endpoints**
+The application provides a RESTful API to allow tenants to manage their licenses programmatically.
 
-1. **POST /signup**
-   - **Description**: Registers a new user.
-   - **Request Body**:
-     - `username`: Unique username (string).
-     - `password`: Password for the user account (string).
-   - **Responses**:
-     - `201 Created` on successful registration.
-     - `400 Bad Request` if the username already exists.
+### Endpoints:
 
-2. **POST /login**
-   - **Description**: Authenticates a user.
-   - **Request Body**:
-     - `username`: User's username (string).
-     - `password`: User's password (string).
-   - **Responses**:
-     - `302 Found` on successful login (redirects).
-     - `401 Unauthorized` if credentials are invalid.
+#### 1. **POST /signup**
+- **Description**: Registers a new user.
+- **Request Body**:
+  - `username`: Unique username (string).
+  - `password`: Password for the user account (string).
+- **Response**:
+  - `201 Created` on successful registration.
+  - `400 Bad Request` if the username already exists.
 
-#### **License Management Endpoints**
+#### 2. **POST /login**
+- **Description**: Logs in a user.
+- **Request Body**:
+  - `username`: User's username (string).
+  - `password`: User's password (string).
+- **Response**:
+  - `302 Found` on successful login (redirects to the dashboard).
+  - `401 Unauthorized` if the credentials are invalid.
 
-3. **POST /activate**
-   - **Description**: Activates a license with a given key.
-   - **Request Body**:
-     - `license_key`: Key of the license to be activated (string).
-   - **Responses**:
-     - `201 Created` on successful activation.
-     - `400 Bad Request` if the license already exists or is invalid.
+#### 3. **POST /activate**
+- **Description**: Activates a license for the current tenant.
+- **Request Body**:
+  - `license_key`: License key to activate (string).
+- **Response**:
+  - `201 Created` on successful activation.
+  - `400 Bad Request` if the license key is invalid or already exists.
 
-4. **POST /revoke**
-   - **Description**: Revokes a license with a given key.
-   - **Request Body**:
-     - `license_key`: Key of the license to be revoked (string).
-   - **Responses**:
-     - `200 OK` on successful revocation.
-     - `404 Not Found` if the license does not exist.
+#### 4. **POST /revoke**
+- **Description**: Revokes a license for the current tenant (admin only).
+- **Request Body**:
+  - `license_key`: License key to revoke (string).
+- **Response**:
+  - `200 OK` on successful revocation.
+  - `404 Not Found` if the license does not exist.
 
-5. **POST /clear_licenses**
-   - **Description**: Clears all licenses from the database after password verification.
-   - **Request Body**:
-     - `password`: Admin password (string).
-   - **Responses**:
-     - `200 OK` on successful clearing.
-     - `403 Forbidden` if the password is incorrect.
+#### 5. **POST /clear_licenses**
+- **Description**: Clears all licenses for the current tenant (admin only).
+- **Request Body**:
+  - `password`: Admin password (string).
+- **Response**:
+  - `200 OK` on successful clearing.
+  - `403 Forbidden` if the password is incorrect.
 
-6. **GET /licenses**
-   - **Description**: Retrieves all licenses.
-   - **Responses**:
-     - `200 OK` with a list of licenses in JSON format.
-     - `204 No Content` if no licenses exist.
+#### 6. **GET /licenses**
+- **Description**: Retrieves all licenses for the current tenant.
+- **Response**:
+  - `200 OK` with a list of licenses (JSON).
+  - `204 No Content` if no licenses exist.
 
-### 7. Testing Instructions
+---
 
-To run the unit tests and integration tests, use the following commands:
+## 6. Code Walkthrough and Comments
+
+### license_server.py
+
+This is the main application file where all the routes are defined.
+
+#### Example of the Signup Route with Role and Tenant Assignment:
+```python
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        username = request.form['username']
+        password = request.form['password']
+        role = "user"  # Default role for new users
+        tenant_id = 1  # Assign a default tenant or based on logic
+
+        # Check if the user already exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash("Username already exists. Please choose a different one.")
+            return redirect(url_for("signup"))
+
+        # Create new user and hash password
+        new_user = User(username=username, role=role, tenant_id=tenant_id)
+        new_user.set_password(password)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Signup successful! Please log in.")
+        return redirect(url_for("login"))
+
+    return render_template("signup.html")
+```
+
+---
+
+## 7. Testing Instructions
+
+To ensure your application works as expected, you can run both **unit tests** and **integration tests**.
+
+### Running Unit Tests:
 
 ```bash
-# Run unit tests
 pytest tests/test_app.py
 ```
+
+### Running Integration Tests:
+
+```bash
+pytest tests/test_integration.py
+```
+
+### Example Test Case for License Activation:
+
+```python
+def test_license_activation(self):
+    # Test activating a license
+    self.app.post('/signup', data={
+        'username': 'testuser',
+        'password': 'testpass'
+    })
+    self.app.post('/login', data={
+        'username': 'testuser',
+        'password': 'testpass'
+    })
+
+    response = self.app.post('/activate', json={
+        'license_key': 'ABC123'
+    })
+    self.assertEqual(response.status_code, 201)  # Check for successful activation
+```
+
+---
+
+## 8. Additional Notes
+
+- **Multi-Tenancy**: If the application needs to support more than one tenant, ensure that tenant IDs are assigned correctly to all users and licenses.
+- **Security**: Always ensure that sensitive data, such as passwords, is securely hashed using methods like `generate_password_hash()`.
+- **Role-Based Access**: Role-based access is implemented using the `role` field in the `User` model. Modify it to assign different access levels (e.g., admin vs. user).
+
+---
