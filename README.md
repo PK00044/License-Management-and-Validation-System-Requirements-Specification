@@ -12,6 +12,8 @@ The **License Management and Validation System** is a software solution that all
 - RESTful API support for tenants to integrate license management into their own systems.
 
 ---
+## The Demo Video Link
+[Drive Link](https://drive.google.com/file/d/1fEjpmHIvWxr_Ael0ighqn_zrPSz1GCwL/view?usp=sharing)
 
 ## 2. Installation Instructions
 
